@@ -35,8 +35,8 @@ func Bytes(old, new []byte) Transformer {
 
 // String returns a transformer that replaces all instances of old with new.
 // Unlike strings.Replace, empty old values don't match anything.
-func String(old, new string) Transformer {
-	return Bytes([]byte(old), []byte(new))
+func String(old, new string, replace func(string) string) Transformer {
+	return Bytes([]byte(replace(old)), []byte(replace(new)))
 }
 
 // Transform implements golang.org/x/text/transform#Transformer
@@ -126,9 +126,9 @@ func Regexp(re *regexp.Regexp, new []byte) *RegexpTransformer {
 
 // RegexpString returns a transformer that replaces all matches of re with template
 // Inside template, $ signs are interpreted as in Expand, so for instance $1 represents the text of the first submatch.
-func RegexpString(re *regexp.Regexp, template string) *RegexpTransformer {
+func RegexpString(re *regexp.Regexp, template string, replace func(string) string) *RegexpTransformer {
 	return RegexpIndexFunc(re, func(src []byte, index []int) []byte {
-		return re.Expand(nil, []byte(template), src, index)
+		return re.Expand(nil, []byte(replace(template)), src, index)
 	})
 }
 
